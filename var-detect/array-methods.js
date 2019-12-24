@@ -2,6 +2,8 @@
  * @file: 拦截器，替换array原型方法
  */
 
+import { def } from './utils';
+
 const ARRAY_PROTO = Array.prototype;
 export const ARRAY_METHODS = Object.create(ARRAY_PROTO);
 
@@ -17,14 +19,10 @@ export const ARRAY_METHODS = Object.create(ARRAY_PROTO);
 
     // 缓存初始方法
     const ORIGINAL = ARRAY_PROTO[method];
-    Object.defineProperty(ARRAY_METHODS, method, {
-        value: function mutator (...args) {
-            return ORIGINAL.apply(this, args);
-
-            // TODO: 发送消息
-        },
-        enumerable: true,
-        writable: true,
-        configurable: true
+    def(ARRAY_METHODS, method, function mutator (...args) {
+        const res = ORIGINAL.apply(this, args);
+        const ob = this.__ob__;
+        ob.dep.notify();
+        return res;
     });
 });

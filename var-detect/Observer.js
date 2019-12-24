@@ -5,6 +5,7 @@
 import Dep from './Dep';
 import { ARRAY_METHODS } from './array-methods';
 import { isObject } from 'util';
+import { def } from './utils';
 
 // 检测是否支持 __proto__
 let hasProto = '__proto__' in {};
@@ -35,6 +36,7 @@ export default class Observer {
 function defineReactive (data, key, val) {
 
     let childOb = observe(val);
+    def(value, '__ob__', this);
 
     let dep = new Dep();
     Object.defineProperty(data, key, {
