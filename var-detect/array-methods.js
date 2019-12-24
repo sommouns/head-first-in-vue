@@ -22,6 +22,15 @@ export const ARRAY_METHODS = Object.create(ARRAY_PROTO);
     def(ARRAY_METHODS, method, function mutator (...args) {
         const res = ORIGINAL.apply(this, args);
         const ob = this.__ob__;
+        let inserted;
+        switch (method) {
+            case 'push':
+            case 'unshift':
+                inserted = args;
+                break;
+            case 'splice':
+                inserted = args.slice(2);
+        }
         ob.dep.notify();
         return res;
     });

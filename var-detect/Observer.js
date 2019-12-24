@@ -20,6 +20,7 @@ export default class Observer {
             let augment = hasProto
                 ? protoAgument(value, ARRAY_METHODS, arrayKeys)
                 : copyAgument(value, ARRAY_METHODS);
+            this.observeArray(value);
         } else {
             this.walk(value);
         }
@@ -29,6 +30,12 @@ export default class Observer {
         const keys = Object.keys(obj);
         keys.forEach(v => {
             defineReactive(obj, v, obj[v]);
+        });
+    }
+
+    observeArray (items) {
+        items.forEach(v => {
+            observe(items[i]);
         });
     }
 }
