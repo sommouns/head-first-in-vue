@@ -4,6 +4,7 @@
 
 import Dep from './Dep';
 import { ARRAY_METHODS } from './array-methods';
+import { isObject } from 'util';
 
 // 检测是否支持 __proto__
 let hasProto = '__proto__' in {};
@@ -12,6 +13,7 @@ let arrayKeys = Object.getOwnPropertyNames(ARRAY_METHODS);
 export default class Observer {
     constructor(value) {
         this.value = value;
+        this.dep = new Dep();
 
         if (Array.isArray(value)) {
             let augment = hasProto
@@ -32,10 +34,7 @@ export default class Observer {
 
 function defineReactive (data, key, val) {
 
-    // 递归转换子对象
-    if (typeof val === 'object') {
-        new Observer(val);
-    }
+    let childOb = observe(val);
 
     let dep = new Dep();
     Object.defineProperty(data, key, {
@@ -43,6 +42,10 @@ function defineReactive (data, key, val) {
         configurable: true,
         get () {
             dep.depend();
+
+            if (childOb) {
+                childOb.dep.depend();
+            }
             return val;
         },
         set (newVal) {
@@ -66,4 +69,17 @@ function copyAgument (target, src, keys) {
     keys.forEach(v => {
         def(target, v, src[v]);
     });
+}
+
+function observe (obj) {
+    if (!isObject(obj)) {
+        return;
+    }
+    let ob;
+    if (hasOwn(obj, '__ob__') && value.__ob__ instanceof Observer) {
+        ob = obj.__ob__;
+    } else {
+        ob = new obj(value);
+    }
+    return ob;
 }
