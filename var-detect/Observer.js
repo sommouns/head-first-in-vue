@@ -3,12 +3,15 @@
  */
 
 import Dep from './Dep';
+import { ARRAY_METHODS } from './array-methods';
 
 export default class Observer {
     constructor(value) {
         this.value = value;
 
-        if (!Array.isArray(value)) {
+        if (Array.isArray(value)) {
+            value.__proto__ = ARRAY_METHODS;
+        } else {
             this.walk(value);
         }
     }
