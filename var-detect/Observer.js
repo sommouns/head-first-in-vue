@@ -5,12 +5,18 @@
 import Dep from './Dep';
 import { ARRAY_METHODS } from './array-methods';
 
+// 检测是否支持 __proto__
+let hasProto = '__proto__' in {};
+let arrayKeys = Object.getOwnPropertyNames(ARRAY_METHODS);
+
 export default class Observer {
     constructor(value) {
         this.value = value;
 
         if (Array.isArray(value)) {
-            value.__proto__ = ARRAY_METHODS;
+            let augment = hasProto
+                ? protoAgument(value, ARRAY_METHODS, arrayKeys)
+                : copyAgument(value, ARRAY_METHODS);
         } else {
             this.walk(value);
         }
@@ -47,5 +53,17 @@ function defineReactive (data, key, val) {
             val = newVal;
             dep.notify();
         }
+    });
+}
+
+// 支持 __proto__ 直接覆盖prototype
+function protoAgument (target, src) {
+    target.__proto__ = src;
+}
+
+// 不支持，把方法直接盖上去
+function copyAgument (target, src, keys) {
+    keys.forEach(v => {
+        def(target, v, src[v]);
     });
 }
